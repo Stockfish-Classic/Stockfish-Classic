@@ -34,13 +34,13 @@
 #include "search.h"
 #include "thread_win32_osx.h"
 
-
 /// Thread class keeps together all the thread-related stuff. We use
 /// per-thread pawn and material hash tables so that once we get a
 /// pointer to an entry its life time is unlimited and we don't have
 /// to care about someone changing the entry under our feet.
 
-class Thread {
+class Thread
+{
 
   std::mutex mutex;
   std::condition_variable cv;
@@ -74,13 +74,14 @@ public:
   LowPlyHistory lowPlyHistory;
   CapturePieceToHistory captureHistory;
   ContinuationHistory continuationHistory[2][2];
+  CorrectionHistory correctionHistory;
   Score contempt;
 };
 
-
 /// MainThread is a derived class specific for main thread
 
-struct MainThread : public Thread {
+struct MainThread : public Thread
+{
 
   using Thread::Thread;
 
@@ -95,21 +96,21 @@ struct MainThread : public Thread {
   std::atomic_bool ponder;
 };
 
-
 /// ThreadPool struct handles all the threads-related stuff like init, starting,
 /// parking and, most importantly, launching a thread. All the access to threads
 /// is done through this class.
 
-struct ThreadPool : public std::vector<Thread*> {
+struct ThreadPool : public std::vector<Thread *>
+{
 
-  void start_thinking(Position&, StateListPtr&, const Search::LimitsType&, bool = false);
+  void start_thinking(Position &, StateListPtr &, const Search::LimitsType &, bool = false);
   void clear();
   void set(size_t);
 
-  MainThread* main()        const { return static_cast<MainThread*>(front()); }
+  MainThread *main() const { return static_cast<MainThread *>(front()); }
   uint64_t nodes_searched() const { return accumulate(&Thread::nodes); }
-  uint64_t tb_hits()        const { return accumulate(&Thread::tbHits); }
-  Thread* get_best_thread() const;
+  uint64_t tb_hits() const { return accumulate(&Thread::tbHits); }
+  Thread *get_best_thread() const;
   void start_searching();
   void wait_for_search_finished() const;
 
@@ -118,11 +119,12 @@ struct ThreadPool : public std::vector<Thread*> {
 private:
   StateListPtr setupStates;
 
-  uint64_t accumulate(std::atomic<uint64_t> Thread::* member) const {
+  uint64_t accumulate(std::atomic<uint64_t> Thread::*member) const
+  {
 
     uint64_t sum = 0;
-    for (Thread* th : *this)
-        sum += (th->*member).load(std::memory_order_relaxed);
+    for (Thread *th : *this)
+      sum += (th->*member).load(std::memory_order_relaxed);
     return sum;
   }
 };
