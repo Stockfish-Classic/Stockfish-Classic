@@ -1,31 +1,29 @@
 ## Overview
 
-[![Build Status](https://travis-ci.org/official-stockfish/Stockfish.svg?branch=master)](https://travis-ci.org/official-stockfish/Stockfish)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/official-stockfish/Stockfish?branch=master&svg=true)](https://ci.appveyor.com/project/mcostalba/stockfish/branch/master)
-
-[Stockfish](https://stockfishchess.org) is a free, powerful UCI chess engine
-derived from Glaurung 2.1. It is not a complete chess program and requires a
+Stockfish Classic is a free, powerful UCI chess engine based on Stockfish and 
+derived from Glaurung 2.1. It maintains Stockfish's classic Hand Crafted 
+Evaluation (HCE). It is not a complete chess program and requires a
 UCI-compatible GUI (e.g. XBoard with PolyGlot, Scid, Cute Chess, eboard, Arena,
 Sigma Chess, Shredder, Chess Partner or Fritz) in order to be used comfortably.
 Read the documentation for your GUI of choice for information about how to use
-Stockfish with it.
+Stockfish Classic with it.
 
 
 ## Files
 
-This distribution of Stockfish consists of the following files:
+This distribution of Stockfish Classic consists of the following files:
 
   * Readme.md, the file you are currently reading.
 
   * Copying.txt, a text file containing the GNU General Public License version 3.
 
   * src, a subdirectory containing the full source code, including a Makefile
-    that can be used to compile Stockfish on Unix-like systems.
+    that can be used to compile Stockfish Classic on Unix-like systems.
 
 
 ## UCI parameters
 
-Currently, Stockfish has the following UCI options:
+Currently, Stockfish Classic has the following UCI options:
 
   * #### Debug Log File
     Write all communication to and from the engine into a text file.
@@ -48,14 +46,14 @@ Currently, Stockfish has the following UCI options:
     Clear the hash table.
 
   * #### Ponder
-    Let Stockfish ponder its next move while the opponent is thinking.
+    Let Stockfish Classic ponder its next move while the opponent is thinking.
 
   * #### MultiPV
     Output the N best lines (principal variations, PVs) when searching.
     Leave at 1 for best performance.
 
   * #### Skill Level
-    Lower the Skill Level in order to make Stockfish play weaker (see also UCI_LimitStrength).
+    Lower the Skill Level in order to make Stockfish Classic play weaker (see also UCI_LimitStrength).
     Internally, MultiPV is enabled, and with a certain probability depending on the Skill Level a
     weaker move will be played.
 
@@ -76,7 +74,7 @@ Currently, Stockfish has the following UCI options:
     avoid losses on time in those cases.
 
   * #### Slow Mover
-    Lower values will make Stockfish take less time in games, higher values will
+    Lower values will make Stockfish Classic take less time in games, higher values will
     make it think longer.
 
   * #### nodestime
@@ -84,7 +82,7 @@ Currently, Stockfish has the following UCI options:
     elapsed time. Useful for engine testing.
 
   * #### UCI_Chess960
-    An option handled by your GUI. If true, Stockfish will play Chess960.
+    An option handled by your GUI. If true, Stockfish Classic will play Chess960.
 
   * #### UCI_AnalyseMode
     An option handled by your GUI.
@@ -142,11 +140,11 @@ the 50-move rule.
 
 ## Large Pages
 
-Stockfish supports large pages on Linux and Windows. Large pages make
+Stockfish Classic supports large pages on Linux and Windows. Large pages make
 the hash access more efficient, improving the engine speed, especially
 on large hash sizes. Typical increases are 5..10% in terms of nps, but
 speed increases up to 30% have been measured. The support is
-automatic. Stockfish attempts to use large pages when available and
+automatic. Stockfish Classic attempts to use large pages when available and
 will fall back to regular memory allocation when this is not the case.
 
 ### Support on Linux
@@ -165,12 +163,12 @@ possible to allocate large pages even when enabled. A reboot
 might alleviate this problem. To determine whether large pages
 are in use, see the engine log.
 
-## Compiling Stockfish yourself from the sources
+## Compiling Stockfish Classic yourself from the sources
 
-Stockfish has support for 32 or 64-bit CPUs, certain hardware
+Stockfish Classic has support for 32 or 64-bit CPUs, certain hardware
 instructions, big-endian machines such as Power PC, and other platforms.
 
-On Unix-like systems, it should be easy to compile Stockfish
+On Unix-like systems, it should be easy to compile Stockfish Classic
 directly from the source code with the included Makefile in the folder
 `src`. In general it is recommended to run `make help` to see a list of make
 targets with corresponding descriptions.
@@ -190,50 +188,20 @@ compiler you used to create your executable. These informations can
 be found by typing the following commands in a console:
 
 ```
-    ./stockfish
+    ./stockfish-classic
     compiler
 ```
 
-## Understanding the code base and participating in the project
-
-Stockfish's improvement over the last couple of years has been a great
-community effort. There are a few ways to help contribute to its growth.
-
-### Donating hardware
-
-Improving Stockfish requires a massive amount of testing. You can donate
-your hardware resources by installing the [Fishtest Worker](https://github.com/glinscott/fishtest/wiki/Running-the-worker:-overview)
-and view the current tests on [Fishtest](https://tests.stockfishchess.org/tests).
-
-### Improving the code
-
-If you want to help improve the code, there are several valuable resources:
-
-* [In this wiki,](https://www.chessprogramming.org) many techniques used in
-Stockfish are explained with a lot of background information.
-
-* [The section on Stockfish](https://www.chessprogramming.org/Stockfish)
-describes many features and techniques used by Stockfish. However, it is
-generic rather than being focused on Stockfish's precise implementation.
-Nevertheless, a helpful resource.
-
-* The latest source can always be found on [GitHub](https://github.com/official-stockfish/Stockfish).
-Discussions about Stockfish take place in the [FishCooking](https://groups.google.com/forum/#!forum/fishcooking)
-group and engine testing is done on [Fishtest](https://tests.stockfishchess.org/tests).
-If you want to help improve Stockfish, please read this [guideline](https://github.com/glinscott/fishtest/wiki/Creating-my-first-test)
-first, where the basics of Stockfish development are explained.
-
-
 ## Terms of use
 
-Stockfish is free, and distributed under the **GNU General Public License version 3**
+Stockfish Classic is free, and distributed under the **GNU General Public License version 3**
 (GPL v3). Essentially, this means that you are free to do almost exactly
 what you want with the program, including distributing it among your
 friends, making it available for download from your web site, selling
 it (either by itself or as part of some bigger software package), or
 using it as the starting point for a software project of your own.
 
-The only real limitation is that whenever you distribute Stockfish in
+The only real limitation is that whenever you distribute Stockfish Classic in
 some way, you must always include the full source code, or a pointer
 to where the source code can be found. If you make any changes to the
 source code, these changes must also be made available under the GPL.
