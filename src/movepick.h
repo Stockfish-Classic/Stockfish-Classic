@@ -29,22 +29,46 @@
 #include "position.h"
 #include "types.h"
 
+constexpr int PAWN_HISTORY_SIZE = 512;         // has to be a power of 2
+constexpr int CORRECTION_HISTORY_SIZE = 16384; // has to be a power of 2
+constexpr int CORRECTION_HISTORY_LIMIT = 1024;
+
+static_assert((PAWN_HISTORY_SIZE & (PAWN_HISTORY_SIZE - 1)) == 0,
+              "PAWN_HISTORY_SIZE has to be a power of 2");
+
+static_assert((CORRECTION_HISTORY_SIZE & (CORRECTION_HISTORY_SIZE - 1)) == 0,
+              "CORRECTION_HISTORY_SIZE has to be a power of 2");
+
+enum PawnHistoryType
+{
+  Normal,
+  Correction
+};
+
+template <PawnHistoryType T = Normal>
+inline int pawn_structure_index(const Position &pos)
+{
+  return pos.pawn_key() & ((T == Normal ? PAWN_HISTORY_SIZE : CORRECTION_HISTORY_SIZE) - 1);
+}
+
 /// StatsEntry stores the stat table value. It is usually a number but could
 /// be a move or even a nested history. We use a class instead of naked value
 /// to directly call history update operator<<() on the entry so to use stats
 /// tables at caller sites as simple multi-dim arrays.
-template<typename T, int D>
-class StatsEntry {
+template <typename T, int D>
+class StatsEntry
+{
 
   T entry;
 
 public:
-  void operator=(const T& v) { entry = v; }
-  T* operator&() { return &entry; }
-  T* operator->() { return &entry; }
-  operator const T&() const { return entry; }
+  void operator=(const T &v) { entry = v; }
+  T *operator&() { return &entry; }
+  T *operator->() { return &entry; }
+  operator const T &() const { return entry; }
 
-  void operator<<(int bonus) {
+  void operator<<(int bonus)
+  {
     assert(abs(bonus) <= D); // Ensure range is [-D, D]
     static_assert(D <= std::numeric_limits<T>::max(), "D overflows T");
 
@@ -64,23 +88,33 @@ struct Stats : public std::array<Stats<T, D, Sizes...>, Size>
 {
   typedef Stats<T, D, Size, Sizes...> stats;
 
-  void fill(const T& v) {
+  void fill(const T &v)
+  {
 
     // For standard-layout 'this' points to first struct member
     assert(std::is_standard_layout<stats>::value);
 
     typedef StatsEntry<T, D> entry;
-    entry* p = reinterpret_cast<entry*>(this);
+    entry *p = reinterpret_cast<entry *>(this);
     std::fill(p, p + sizeof(*this) / sizeof(entry), v);
   }
 };
 
 template <typename T, int D, int Size>
-struct Stats<T, D, Size> : public std::array<StatsEntry<T, D>, Size> {};
+struct Stats<T, D, Size> : public std::array<StatsEntry<T, D>, Size>
+{
+};
 
 /// In stats table, D=0 means that the template parameter is not used
-enum StatsParams { NOT_USED = 0 };
-enum StatsType { NoCaptures, Captures };
+enum StatsParams
+{
+  NOT_USED = 0
+};
+enum StatsType
+{
+  NoCaptures,
+  Captures
+};
 
 /// ButterflyHistory records how often quiet moves have been successful or
 /// unsuccessful during the current search, and is used for reduction and move
@@ -109,6 +143,8 @@ typedef Stats<int16_t, 29952, PIECE_NB, SQUARE_NB> PieceToHistory;
 /// PieceToHistory instead of ButterflyBoards.
 typedef Stats<PieceToHistory, NOT_USED, PIECE_NB, SQUARE_NB> ContinuationHistory;
 
+// CorrectionHistory is addressed by color and pawn structure
+typedef Stats<int16_t, CORRECTION_HISTORY_LIMIT, COLOR_NB, CORRECTION_HISTORY_SIZE> CorrectionHistory;
 
 /// MovePicker class is used to pick one pseudo legal move at a time from the
 /// current position. The most important method is next_move(), which returns a
@@ -116,38 +152,45 @@ typedef Stats<PieceToHistory, NOT_USED, PIECE_NB, SQUARE_NB> ContinuationHistory
 /// when MOVE_NONE is returned. In order to improve the efficiency of the alpha
 /// beta algorithm, MovePicker attempts to return the moves which are most likely
 /// to get a cut-off first.
-class MovePicker {
+class MovePicker
+{
 
-  enum PickType { Next, Best };
+  enum PickType
+  {
+    Next,
+    Best
+  };
 
 public:
-  MovePicker(const MovePicker&) = delete;
-  MovePicker& operator=(const MovePicker&) = delete;
-  MovePicker(const Position&, Move, Value, const CapturePieceToHistory*);
-  MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
-                                           const CapturePieceToHistory*,
-                                           const PieceToHistory**,
-                                           Square);
-  MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
-                                           const LowPlyHistory*,
-                                           const CapturePieceToHistory*,
-                                           const PieceToHistory**,
-                                           Move,
-                                           const Move*,
-                                           int);
+  MovePicker(const MovePicker &) = delete;
+  MovePicker &operator=(const MovePicker &) = delete;
+  MovePicker(const Position &, Move, Value, const CapturePieceToHistory *);
+  MovePicker(const Position &, Move, Depth, const ButterflyHistory *,
+             const CapturePieceToHistory *,
+             const PieceToHistory **,
+             Square);
+  MovePicker(const Position &, Move, Depth, const ButterflyHistory *,
+             const LowPlyHistory *,
+             const CapturePieceToHistory *,
+             const PieceToHistory **,
+             Move,
+             const Move *,
+             int);
   Move next_move(bool skipQuiets = false);
 
 private:
-  template<PickType T, typename Pred> Move select(Pred);
-  template<GenType> void score();
-  ExtMove* begin() { return cur; }
-  ExtMove* end() { return endMoves; }
+  template <PickType T, typename Pred>
+  Move select(Pred);
+  template <GenType>
+  void score();
+  ExtMove *begin() { return cur; }
+  ExtMove *end() { return endMoves; }
 
-  const Position& pos;
-  const ButterflyHistory* mainHistory;
-  const LowPlyHistory* lowPlyHistory;
-  const CapturePieceToHistory* captureHistory;
-  const PieceToHistory** continuationHistory;
+  const Position &pos;
+  const ButterflyHistory *mainHistory;
+  const LowPlyHistory *lowPlyHistory;
+  const CapturePieceToHistory *captureHistory;
+  const PieceToHistory **continuationHistory;
   Move ttMove;
   ExtMove refutations[3], *cur, *endMoves, *endBadCaptures;
   int stage;
