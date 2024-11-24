@@ -21,12 +21,12 @@
 ### Section 1. General Configuration
 ### ==========================================================================
 
-### Executable name
-# ifeq ($(COMP),mingw)
-# EXE = stockfish-classic.exe
-# else
-# EXE = stockfish-classic
-# endif
+## Executable name
+ifeq ($(COMP),mingw)
+EXE = stockfish-classic.exe
+else
+EXE = stockfish-classic
+endif
 
 ### Installation dir definitions
 PREFIX = /usr/local
@@ -38,7 +38,7 @@ PGOBENCH = ./$(EXE) bench
 ### Source and object files
 SRCS = benchmark.cpp bitbase.cpp bitboard.cpp endgame.cpp evaluate.cpp main.cpp \
 	material.cpp misc.cpp movegen.cpp movepick.cpp pawns.cpp position.cpp psqt.cpp \
-	search.cpp thread.cpp timeman.cpp tt.cpp uci.cpp ucioption.cpp tune.cpp syzygy/tbprobe.cpp
+	search.cpp thread.cpp timeman.cpp tt.cpp uci.cpp ucioption.cpp tune.cpp 
 
 OBJS = $(notdir $(SRCS:.cpp=.o))
 
@@ -158,8 +158,8 @@ endif
 ### ==========================================================================
 
 ### 3.1 Selecting compiler (default = gcc)
-CXXFLAGS += -Wall -Wcast-qual -fno-exceptions -std=c++11 $(EXTRACXXFLAGS)
-DEPENDFLAGS += -std=c++11
+CXXFLAGS += -Wall -Wcast-qual -fno-exceptions -std=c++17 $(EXTRACXXFLAGS)
+DEPENDFLAGS += -std=c++17
 LDFLAGS += $(EXTRALDFLAGS)
 
 ifeq ($(COMP),)
@@ -294,7 +294,7 @@ endif
 ### 3.3 Optimization
 ifeq ($(optimize),yes)
 
-	CXXFLAGS += -O3
+	CXXFLAGS += -Oz
 
 	ifeq ($(comp),gcc)
 		ifeq ($(OS), Android)
